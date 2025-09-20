@@ -23,4 +23,8 @@ void CMemRef(CMem *ptr);
 void CMemUnref(CMem *ptr);
 void CMemFree(CMem *ptr);
 
+// FFI-safe API
+void* CMemGetData(CMem *ptr);
+size_t CMemGetSize(CMem *ptr);
+
 #endif

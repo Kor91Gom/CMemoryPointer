@@ -29,6 +29,7 @@ int main()
     // 🧠 스마트 포인터 시스템 초기화
     CMemGlobalInit();
     CMemRegisterObserver(MemoryLogger);
+    CMemSetLogLevel(LOG_DEBUG); // 디버깅 로그 활성화
 
     // ✅ 일반 포인터 입력
     int intValue;
@@ -36,7 +37,10 @@ int main()
     scanf("%d", &intValue);
 
     AUTO_FREE CMem *intPtr = CMemCreate(sizeof(int), IntDestructor);
+    if (!intPtr) return 1;
     *(int *)intPtr->data = intValue;
+    CMemSetTag(intPtr, "intPtr");
+    CMemSetType(intPtr, "int");
     CMemTrack(intPtr);
     CMemDebugLog("Created intPtr", intPtr);
     printf("intPtr value: %d\n\n", *(int *)intPtr->data);
@@ -47,11 +51,14 @@ int main()
     scanf("%d", &arraySize);
 
     CMem *arrayPtr = CMemCreateArray(arraySize, sizeof(int), ArrayDestructor);
+    if (!arrayPtr) return 1;
     CMemScopePush(arrayPtr);
+    CMemSetTag(arrayPtr, "arrayPtr");
+    CMemSetType(arrayPtr, "int[]");
     CMemTrack(arrayPtr);
     CMemDebugLog("Created arrayPtr", arrayPtr);
 
-    int *arr = (int *)arrayPtr->data;
+    int *arr = CMemGetTyped(arrayPtr, int);
     for (int i = 0; i < arraySize; ++i)
     {
         printf("Enter arr[%d]: ", i);
@@ -68,15 +75,19 @@ int main()
     scanf("%d %d", &rows, &cols);
 
     CMem **matrix = CMemCreateDoublePtr(rows, cols, sizeof(int), ArrayDestructor);
+    if (!matrix) return 1;
+
     for (int i = 0; i < rows; ++i)
     {
-        int *row = (int *)matrix[i]->data;
+        int *row = CMemGetTyped(matrix[i], int);
         for (int j = 0; j < cols; ++j)
         {
             printf("Enter matrix[%d][%d]: ", i, j);
             scanf("%d", &row[j]);
         }
         CMemScopePush(matrix[i]);
+        CMemSetTag(matrix[i], "matrixRow");
+        CMemSetType(matrix[i], "int[]");
         CMemTrack(matrix[i]);
         CMemDebugLog("Created matrix row", matrix[i]);
     }
@@ -84,7 +95,7 @@ int main()
 
     for (int i = 0; i < rows; ++i)
     {
-        int *row = (int *)matrix[i]->data;
+        int *row = CMemGetTyped(matrix[i], int);
         for (int j = 0; j < cols; ++j)
             printf("matrix[%d][%d] = %d\n", i, j, row[j]);
     }

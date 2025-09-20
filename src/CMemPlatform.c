@@ -16,7 +16,7 @@ EXPORT void CMemInitPlatform(void)
         strcpy(g_platformName, "Linux ARM64");
     #elif defined(__arm__)
         strcpy(g_platformName, "Linux ARM");
-    #elif defined(__riscv)
+    #elif defined(__riscv) // cSpell:ignore riscv
         strcpy(g_platformName, "Linux RISC-V");
     #else
         strcpy(g_platformName, "Linux x86/x64");
