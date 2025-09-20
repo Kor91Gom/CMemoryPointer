@@ -1,16 +1,20 @@
 #include "CMemoryPointer.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 CMem* CMemCreate(size_t size, void (*destructor)(void *))
 {
     CMem *cmem = (CMem *)malloc(sizeof(CMem));
-    if (!cmem) return NULL;
+    if (!cmem) {
+        fprintf(stderr, "CMemCreate: allocation failed\n");
+        return NULL;
+    }
 
     cmem->data = malloc(size);
-    if (!cmem->data)
-    {
+    if (!cmem->data) {
         free(cmem);
+        fprintf(stderr, "CMemCreate: data allocation failed\n");
         return NULL;
     }
 
@@ -27,8 +31,7 @@ CMem* CMemCreate(size_t size, void (*destructor)(void *))
 CMem* CMemCreateArray(size_t count, size_t elementSize, void (*elementDestructor)(void *))
 {
     CMem *ptr = CMemCreate(count * elementSize, elementDestructor);
-    if (ptr)
-    {
+    if (ptr) {
         ptr->type = "array";
         ptr->tag = "array";
     }
@@ -79,4 +82,14 @@ void CMemFree(CMem *ptr)
     if (ptr->destructor) ptr->destructor(ptr->data);
     free(ptr->data);
     free(ptr);
+}
+
+void* CMemGetData(CMem *ptr)
+{
+    return ptr ? ptr->data : NULL;
+}
+
+size_t CMemGetSize(CMem *ptr)
+{
+    return ptr ? ptr->size : 0;
 }
